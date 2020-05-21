@@ -12,8 +12,9 @@ public class cmdProcess {
     private String[] args;
     private String serverIp;
     private String serverPort;
-    private String key;
-    private String localAddr;
+    private String password;
+    private String localIp = "0.0.0.0";
+    private String localPort;
     private boolean udp = false;
     private String configFilePath;
     private Logger log = Logger.getGlobal();
@@ -43,11 +44,11 @@ public class cmdProcess {
                 }
 
                 if (this.args[i].equals("-l")) {
-                    localAddr = this.args[i + 1];
+                    localPort = this.args[i + 1];
                 }
 
                 if (this.args[i].equals("-k")) {
-                    key = this.args[i + 1];
+                    password = this.args[i + 1];
                 }
 
                 if (this.args[i].equals("-u")) {
@@ -75,15 +76,41 @@ public class cmdProcess {
     }
 
     private void processConfigData(String cfgFileData) {
-        // System.out.println(cfgFileData);
         String cfgReg = "(.*)=(.*)";
         Pattern cfgPattern = Pattern.compile(cfgReg);
         Matcher cfgMatcher = cfgPattern.matcher(cfgFileData);
 
         if (cfgMatcher.matches()) {
-            System.out.println(cfgMatcher.group(0));
+            String key = cfgMatcher.group(1);
+            String value = cfgMatcher.group(2);
+
+            if (key.equals("serverIp") && ipVerify(value)) {
+                log.info("serverIp is: " + value);
+                this.serverIp = value;
+            }
+            if (key.equals("serverPort") && portVerify(value)) {
+                log.info("serverPort is: " + value);
+                this.serverPort = value;
+            }
+            if (key.equals("localIp") && ipVerify(value)) {
+                log.info("localIp is: " + value);
+                this.localIp = value;
+            }
+            if (key.equals("localPort") && portVerify(value)) {
+                log.info("localPort is: " + value);
+                this.localPort = value;
+            }
+            if (key.equals("password")) {
+                log.info("password is: " + value);
+                this.password = value;
+            }
+            if (key.equals("udp") && udpVerify(value)) {
+                log.info("udp is: " + value);
+                this.localIp = value;
+            }
+
         } else {
-            System.out.println("not find");
+            log.info(" No match found");
         }
     }
 
@@ -98,6 +125,24 @@ public class cmdProcess {
         }
     }
 
+    private Boolean portVerify(String port) {
+        int newPort = Integer.parseInt(port);
+        if (newPort > 65535 || newPort < 0) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    private Boolean udpVerify(String udpInput) {
+        Boolean udpStatus = Boolean.valueOf(udpInput);
+        if (udpStatus) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public String getServerIp() {
         return serverIp;
     }
@@ -106,12 +151,16 @@ public class cmdProcess {
         return serverPort;
     }
 
-    public String getlocalAddr() {
-        return localAddr;
+    public String getlocalIp() {
+        return localIp;
     }
 
-    public String getkey() {
-        return key;
+    public String getlocalPort() {
+        return localPort;
+    }
+
+    public String getPassword() {
+        return password;
     }
 
     public boolean getUpd() {
