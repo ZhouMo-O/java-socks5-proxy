@@ -5,6 +5,8 @@ import java.nio.file.Paths;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class cmdProcess {
     private String[] args;
@@ -28,7 +30,7 @@ public class cmdProcess {
 
                 if (this.args[i].equals("-c")) {
                     configFilePath = this.args[i + 1];
-                    this.openJsonConfigFile(configFilePath);
+                    this.openConfigFile(configFilePath);
                     break;
                 }
 
@@ -55,14 +57,14 @@ public class cmdProcess {
         }
     }
 
-    private void openJsonConfigFile(String filePath) {
+    private void openConfigFile(String filePath) {
         File jsonFile = new File(filePath);
         try {
             if (jsonFile.exists() && jsonFile.isFile()) {
                 log.info("open " + jsonFile + " is sucessfull");
-                Scanner jsonFileData = new Scanner(Paths.get(jsonFile.getAbsolutePath()), "UTF-8");
-                while (jsonFileData.hasNextLine()) {
-                    this.processJsonConfigData(jsonFileData.nextLine());
+                Scanner cfgFileData = new Scanner(Paths.get(jsonFile.getAbsolutePath()), "UTF-8");
+                while (cfgFileData.hasNextLine()) {
+                    this.processConfigData(cfgFileData.nextLine());
                 }
             } else {
                 log.severe(jsonFile + "not exists or not is a file");
@@ -72,8 +74,28 @@ public class cmdProcess {
         }
     }
 
-    private void processJsonConfigData(String jsonFileData) {
-        System.out.println(jsonFileData);
+    private void processConfigData(String cfgFileData) {
+        // System.out.println(cfgFileData);
+        String cfgReg = "(.*)=(.*)";
+        Pattern cfgPattern = Pattern.compile(cfgReg);
+        Matcher cfgMatcher = cfgPattern.matcher(cfgFileData);
+
+        if (cfgMatcher.matches()) {
+            System.out.println(cfgMatcher.group(0));
+        } else {
+            System.out.println("not find");
+        }
+    }
+
+    private Boolean ipVerify(String ip) {
+        String ipReg = "([1-9]|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])(\\.(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])){3}";
+        Pattern ipPattern = Pattern.compile(ipReg);
+        Matcher ipVerify = ipPattern.matcher(ip);
+        if (ipVerify.matches()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public String getServerIp() {
