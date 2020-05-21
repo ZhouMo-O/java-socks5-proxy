@@ -32,7 +32,7 @@ public class cmdProcess {
                 if (this.args[i].equals("-c")) {
                     configFilePath = this.args[i + 1];
                     this.openConfigFile(configFilePath);
-                    break;
+                    break;// 如果是读取文件那么就不需要再继续往下走了。
                 }
 
                 if (this.args[i].equals("-s")) {
@@ -87,26 +87,43 @@ public class cmdProcess {
             if (key.equals("serverIp") && ipVerify(value)) {
                 log.info("serverIp is: " + value);
                 this.serverIp = value;
+            } else {
+                log.severe("serverIp input error: " + value);
             }
+
             if (key.equals("serverPort") && portVerify(value)) {
                 log.info("serverPort is: " + value);
                 this.serverPort = value;
+            } else {
+                log.severe("serverPort input error: " + value);
             }
+
             if (key.equals("localIp") && ipVerify(value)) {
                 log.info("localIp is: " + value);
                 this.localIp = value;
+            } else {
+                log.severe("localIp input error: " + value);
             }
+
             if (key.equals("localPort") && portVerify(value)) {
                 log.info("localPort is: " + value);
                 this.localPort = value;
+            } else {
+                log.severe("localPort input error: " + value);
             }
+
             if (key.equals("password")) {
                 log.info("password is: " + value);
                 this.password = value;
+            } else {
+                log.severe("password input error: " + value);
             }
+
             if (key.equals("udp") && udpVerify(value)) {
                 log.info("udp is: " + value);
                 this.localIp = value;
+            } else {
+                log.severe("udp input error: " + value);
             }
 
         } else {
