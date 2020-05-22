@@ -6,8 +6,8 @@ import java.util.Map;
 
 public class client {
     public static void main(String[] args) {
-        cfgFileProcess cmdProcessing = new cfgFileProcess(args);
-        Map<String, String> cfgMap = cmdProcessing.getConfigMap();
+        cmdLineProcess cmdProcessing = new cmdLineProcess(args);
+        Map<String, String> cfgMap = cmdProcessing.getParameter();
         System.out.println(cfgMap.get("serverIp"));
     }
 }

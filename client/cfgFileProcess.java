@@ -11,54 +11,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class cfgFileProcess {
-    private String[] args;
+
     private Map<String, String> configMap = new HashMap<String, String>();
-    private String serverIp;
-    private String serverPort;
-    private String password;
-    private String localIp = "0.0.0.0";
-    private String localPort;
-    private boolean udp = false;
     private String configFilePath;
     private Logger log = Logger.getGlobal();
     // private String encryptMethod; //加密方式唯一，不支持更多加密方式
 
-    public cfgFileProcess(String[] args) {
-        processCmdInput(this.args = args);
+    public cfgFileProcess(String configFilePath) {
         log.setLevel(Level.INFO);
-    }
-
-    private void processCmdInput(String[] args) {
-        if (this.args.length > 0) {
-            for (int i = 0; i < this.args.length; i++) {
-
-                if (this.args[i].equals("-c")) {
-                    configFilePath = this.args[i + 1];
-                    this.openConfigFile(configFilePath);
-                    break;// if file break
-                }
-
-                if (this.args[i].equals("-s")) {
-                    serverIp = this.args[i + 1];
-                }
-
-                if (this.args[i].equals("-p")) {
-                    serverPort = this.args[i + 1];
-                }
-
-                if (this.args[i].equals("-l")) {
-                    localPort = this.args[i + 1];
-                }
-
-                if (this.args[i].equals("-k")) {
-                    password = this.args[i + 1];
-                }
-
-                if (this.args[i].equals("-u")) {
-                    udp = true;
-                }
-            }
-        }
+        this.configFilePath = configFilePath;
+        this.openConfigFile(this.configFilePath);
     }
 
     private void openConfigFile(String filePath) {
