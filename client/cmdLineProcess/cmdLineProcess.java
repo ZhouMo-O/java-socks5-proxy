@@ -27,7 +27,6 @@ public class cmdLineProcess {
                     cfgFileProcess cfgProcess = new cfgFileProcess(configFilePath);
                     parameterMap = cfgProcess.getConfigMap();
                     break; // out
-
                 }
 
                 log.info("Put Data key is: " + args[i] + " value is: " + args[i + 1]);
