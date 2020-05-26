@@ -2,6 +2,8 @@ package client;
 
 import java.util.Map;
 
+import client.cmdLineProcess.cmdLineProcess;
+
 // import java.util.Scanner;
 
 public class client {

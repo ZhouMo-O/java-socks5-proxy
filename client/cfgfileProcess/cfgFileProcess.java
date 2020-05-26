@@ -1,4 +1,4 @@
-package client;
+package client.cfgfileProcess;
 
 import java.io.*;
 import java.nio.file.Paths;
@@ -33,10 +33,12 @@ public class cfgFileProcess {
                     this.processConfigData(cfgFileData.nextLine());
                 }
             } else {
-                log.severe(jsonFile + "not exists or not is a file");
+                log.severe(jsonFile.getAbsolutePath() + " not exists or is not file");
+                throw new IOException();
             }
         } catch (Exception e) {
             log.severe(e.getMessage());
+
         }
     }
 

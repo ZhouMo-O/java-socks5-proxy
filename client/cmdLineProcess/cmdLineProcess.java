@@ -1,9 +1,10 @@
-package client;
+package client.cmdLineProcess;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 import java.util.logging.Level;
+import client.cfgfileProcess.cfgFileProcess;
 
 public class cmdLineProcess {
 
@@ -11,7 +12,6 @@ public class cmdLineProcess {
     private Logger log = Logger.getGlobal();
     private String configFilePath;
     private Map<String, String> parameterMap = new HashMap<String, String>();
-    private Map<String, String> cmdMap = new HashMap<>();
 
     public cmdLineProcess(String[] args) {
         log.setLevel(Level.INFO);
@@ -27,6 +27,7 @@ public class cmdLineProcess {
                     cfgFileProcess cfgProcess = new cfgFileProcess(configFilePath);
                     parameterMap = cfgProcess.getConfigMap();
                     break; // out
+
                 }
 
                 log.info("Put Data key is: " + args[i] + " value is: " + args[i + 1]);
@@ -36,15 +37,6 @@ public class cmdLineProcess {
         } else {
 
         }
-    }
-
-    private void initParameter() {
-        cmdMap.put("-s", "remoteServer");
-        cmdMap.put("-p", "remotePort");
-        cmdMap.put("-l", "localIp");
-        cmdMap.put("-P", "localPort");
-        cmdMap.put("-k", "password");
-        cmdMap.put("-u", "udp");
     }
 
     public Map<String, String> getParameter() {
