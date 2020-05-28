@@ -24,5 +24,4 @@ public class cmdLineProcessTest {
         String serverIp = cmdLineProcessing.getParameter().get("serverIp");
         assertEquals("192.168.1.172", serverIp);
     }
-
 }

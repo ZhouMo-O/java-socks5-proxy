@@ -10,6 +10,9 @@ public class client {
     public static void main(String[] args) {
         cmdLineProcess cmdProcessing = new cmdLineProcess(args);
         Map<String, String> cfgMap = cmdProcessing.getParameter();
-        System.out.println(cfgMap.get("serverIp"));
+        if (cfgMap != null) {
+            System.out.println(cfgMap.get("serverIp"));
+        }
+
     }
 }
