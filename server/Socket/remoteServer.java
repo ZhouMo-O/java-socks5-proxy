@@ -6,76 +6,84 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import sun.reflect.generics.tree.ByteSignature;
+
 public class remoteServer {
-    private String STATUS = "firstLink";
     private final int PORT = 8335; // 端口号
-    private final byte VERSION = 0X05;// 只支持socks5
-    private final byte METHDOS = 0X00;// 一律不验证
-    private final byte[] CMD = new byte[1024 * 512];
+    private static final byte[] VER = { 0x5, 0x0 };
+    private byte[] buffer = new byte[4096];
+    private static final byte[] CONNECT_OK = { 0x5, 0x0, 0x0, 0x1, 0, 0, 0, 0, 0, 0 };
+
+    private Socket connection;
 
     public remoteServer(String[] args) {
         try (ServerSocket server = new ServerSocket(PORT)) {
             Socket connection = server.accept();
-            OutputStream out = connection.getOutputStream();
-            InputStream in = connection.getInputStream();
-            while (true) {
-                switch (STATUS) {
-                    case "firstLink":
-                        this.firstLink(in, out, connection);
-                        this.STATUS = "LinkRemoteServer";
-                        break;
-                    case "LinkRemoteServer":
-                        this.LinkRemoteServer(in, out, connection);
-                        break;
-
-                    case "close":
-
-                        break;
-                    default:
-                        break;
-                }
-            }
-
+            this.connection = connection;
+            firstLink();
+            linkRemote();
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }
 
-    public void firstLink(InputStream in, OutputStream out, Socket connection) {
+    public void firstLink() throws IOException {
         try {
-            byte[] buff = new byte[255];
-            in.read(buff, 0, 2);
-            int version = buff[0];
-            int methods = buff[1];
-            System.out.println(version + methods);
-            if (version != this.VERSION) {
-                throw new RuntimeException("version must 0x05");
-            }
+            OutputStream out = connection.getOutputStream();
+            InputStream in = connection.getInputStream();
+            int len = in.read(buffer);
+            System.out.println("< " + bytesToHexString(buffer, 0, len));
+            out.write(VER);
+            out.flush();
+            System.out.println("> " + bytesToHexString(VER, 0, VER.length));
+            len = in.read(buffer);
+            System.out.println("< " + bytesToHexString(buffer, 0, len));
+            // 查找主机和端口
+            String host = findHost(buffer, 4, 7);
+            int port = findPort(buffer, 8, 9);
+            System.out.println("host=" + host + ",port=" + port);
 
-            if (methods != this.METHDOS) {
-                throw new RuntimeException("methods must 0x00");
-            }
-
-            buff[0] = VERSION;
-            buff[1] = METHDOS;
-            out.write(buff, 0, 2);
-            this.STATUS = "LinkRemoteServer";
         } catch (Exception e) {
-
+            System.out.println(e.getMessage());
         }
+
     }
 
-    public void LinkRemoteServer(InputStream in, OutputStream out, Socket connection) {
-        byte[] buff = new byte[255];
-        byte[] cmd = new byte[1024 * 512];
-        try {
-            in.read(buff, 0, 4);
-            int version = buff[0];
-            int addr = buff[3];
-            System.out.println(version);
-        } catch (Exception e) {
-            // TODO: handle exception
+    private void linkRemote() throws IOException {
+        System.out.println("第二次验证");
+
+    }
+
+    public static String findHost(byte[] bArray, int begin, int end) {
+        StringBuffer sb = new StringBuffer();
+        for (int i = begin; i <= end; i++) {
+            sb.append(Integer.toString(0xFF & bArray[i]));
+            sb.append(".");
         }
+        sb.deleteCharAt(sb.length() - 1);
+        return sb.toString();
+    }
+
+    public static int findPort(byte[] bArray, int begin, int end) {
+        int port = 0;
+        for (int i = begin; i <= end; i++) {
+            port <<= 16;
+            port += bArray[i];
+        }
+        return port;
+    }
+
+    public static final String bytesToHexString(byte[] bArray, int begin, int end) {
+        StringBuffer sb = new StringBuffer(bArray.length);
+        String sTemp;
+        for (int i = begin; i < end; i++) {
+            sTemp = Integer.toHexString(0xFF & bArray[i]);
+            if (sTemp.length() < 2)
+                sb.append(0);
+            sb.append(sTemp.toUpperCase());
+            sb.append(" ");
+        }
+        return sb.toString();
     }
 
     // public static void main(String[] args) {
