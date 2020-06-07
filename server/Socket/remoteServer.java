@@ -8,7 +8,7 @@ import java.net.Socket;
 
 public class remoteServer {
     private final int PORT = 8335; // 端口号
-    private static final byte[] VER = { 0x5, 0x0 };//
+    private static final byte[] VER = { 0x5, 0x0 };// di
     private byte[] buffer = new byte[512];
     private static final byte[] CONNECT_OK = { 0x5, 0x0, 0x0, 0x1, 0, 0, 0, 0, 0, 0 };
     private Socket connection;
