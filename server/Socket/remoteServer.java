@@ -6,14 +6,11 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import sun.reflect.generics.tree.ByteSignature;
-
 public class remoteServer {
     private final int PORT = 8335; // 端口号
-    private static final byte[] VER = { 0x5, 0x0 };
-    private byte[] buffer = new byte[4096];
+    private static final byte[] VER = { 0x5, 0x0 };//
+    private byte[] buffer = new byte[512];
     private static final byte[] CONNECT_OK = { 0x5, 0x0, 0x0, 0x1, 0, 0, 0, 0, 0, 0 };
-
     private Socket connection;
 
     public remoteServer(String[] args) {
@@ -35,14 +32,6 @@ public class remoteServer {
             System.out.println("< " + bytesToHexString(buffer, 0, len));
             out.write(VER);
             out.flush();
-            System.out.println("> " + bytesToHexString(VER, 0, VER.length));
-            len = in.read(buffer);
-            System.out.println("< " + bytesToHexString(buffer, 0, len));
-            // 查找主机和端口
-            String host = findHost(buffer, 4, 7);
-            int port = findPort(buffer, 8, 9);
-            System.out.println("host=" + host + ",port=" + port);
-
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -51,7 +40,40 @@ public class remoteServer {
 
     private void linkRemote() throws IOException {
         System.out.println("第二次验证");
+        OutputStream out = connection.getOutputStream();
+        InputStream in = connection.getInputStream();
 
+        System.out.println("> " + bytesToHexString(VER, 0, VER.length));
+        int len = in.read(buffer);
+        int ver = buffer[2];
+        System.out.println(ver);
+        System.out.println("< " + bytesToHexString(buffer, 0, len));
+        // 查找主机和端口
+        String host = findHost(buffer, 4, 7);
+        int port = findPort(buffer, 8, 9);
+        System.out.println("host=" + host + ",port=" + port);
+        out.write(CONNECT_OK);
+        Socket targetSocket = new Socket(host, port);
+        OutputStream tarOut = targetSocket.getOutputStream();
+        InputStream tarIn = targetSocket.getInputStream();
+        while (true) {
+            while (in.available() != 0) {
+                len = in.read(buffer);
+                tarOut.write(buffer, 0, len);
+                System.out.println(">" + bytesToHexString(buffer, 0, len));
+            }
+
+            while (tarIn.available() != 0) {
+                len = tarIn.read(buffer);
+                System.out.println("<" + bytesToHexString(buffer, 0, len));
+                out.write(buffer, 0, len);
+            }
+
+            if (connection.isClosed()) {
+                System.out.println("closed");
+                break;
+            }
+        }
     }
 
     public static String findHost(byte[] bArray, int begin, int end) {
