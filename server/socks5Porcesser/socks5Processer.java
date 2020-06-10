@@ -6,27 +6,20 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
-import client.socket.socket;
-
 public class socks5Processer {
-    private int PORT = 8336;
     private static final byte VERSION = 0x5; // 只 socks5
     private static final byte METHOD = 0x0;// 不加密
     private byte[] buffer = new byte[512];
     private Socket clientSocket;
     private Socket targetSocket;
-    private OutputStream targetOutput;
-    private InputStream targetInput;
     private String targetAddress;
     int targetPort;
 
     public socks5Processer(Socket clientSocket) throws IOException {
         this.clientSocket = clientSocket;
-        System.out.println("link");
     }
 
     public void run() throws IOException {
@@ -61,20 +54,19 @@ public class socks5Processer {
     private void handleClientCmd() {
         try {
             System.out.println("handle Client command");
-            OutputStream clientOutput = clientSocket.getOutputStream();
             InputStream clientInput = clientSocket.getInputStream();
 
             int len = clientInput.read(buffer);
             int addrType = buffer[3];
             System.out.println("> " + bytesToHexString(buffer, 0, len));
 
-            if (addrType == 1) { // 如果是1就是客户端直接发来了Ip
+            if (addrType == 1) { // addr type is ipv4;
                 System.out.println("ip");
                 targetAddress = findHost(buffer, 4, 7);// 获取Ip
                 targetPort = findPort(buffer, 8, 9);
                 System.out.println(targetAddress);
             }
-            if (addrType == 3) {// 如果是3代表发来的是一个域名
+            if (addrType == 3) {// addr type is domain;
                 int domainLength = buffer[4];
                 System.out.println(domainLength);
                 targetAddress = new String(Arrays.copyOfRange(buffer, 4, domainLength + 5));
@@ -94,7 +86,6 @@ public class socks5Processer {
         targetSocket = null;
         try {
             OutputStream clientOutput = clientSocket.getOutputStream();
-            InputStream clientInput = clientSocket.getInputStream();
             targetSocket = new Socket(targetAddress, targetPort);
             clientOutput.write(buildCmd());
         } catch (IOException e) {
